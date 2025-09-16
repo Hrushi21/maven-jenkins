@@ -1,50 +1,23 @@
-// Building WAR file
 pipeline {
-    agent any 
-      stages {
-        stage('clean') {
+    agent any
+
+    stages {
+        stage('Build') {
             steps {
-                bat 'mvn clean'
+                sh 'mvn clean package'
             }
         }
 
-        stage('validate') {
+        stage('Deploy') {
             steps {
-                bat 'mvn validate'
+                deploy adapters: [
+                    tomcat9(
+                        credentialsId: 'Tomcat',
+                        path: '',
+                        url: 'http://localhost:8080/'
+                    )
+                ], contextPath: null, war: '**/*.war'
             }
         }
-
-        stage('compile') {
-            steps {
-                bat 'mvn compile'
-            }
-        }
-
-        stage('test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-
-        stage('package') {
-            steps {
-                bat 'mvn package'
-            }
-        }
-
-        stage('install') {
-            steps {
-                bat 'mvn install'
-            }
-        }
- stage('deploy-to-tomcat') {
-            steps {
-deploy adapters: [tomcat9.0(alternativeDeploymentContext: '', credentialsId: 'Tomcat', path: '', url: 'http://localhost:8080/')], contextPath: null, war: '**/*.war'
-}                 
     }
 }
-}
-
-
-
-
